@@ -1,0 +1,1 @@
+# PineVoice SmartSpeaker SDK
