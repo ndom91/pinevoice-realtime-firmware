@@ -1,0 +1,6 @@
+{
+  "folders": [
+    { "name": "MCU project", "path": "solutions/pinevoice_fw_e907" },
+    { "name": "DSP project", "path": "solutions/pinevoice_fw_c906" }
+  ]
+}
