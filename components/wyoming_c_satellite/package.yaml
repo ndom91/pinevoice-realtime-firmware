@@ -1,0 +1,26 @@
+name: wyoming_c_satellite
+version: develop
+description: Wyoming C Satellite library
+type: common
+tag: wyoming
+keywords:
+  - wyoming
+license: APACHE
+
+depends:
+  - cjson: develop
+#   - minilibc: v7.4.0
+#   - aos: v7.4.0
+
+build_config:
+  include:
+    - src/include
+    - impl/
+
+source_file:
+  - "src/lib/*.c"
+
+# install:
+#   - dest: "include"
+#     source:
+#       - "include/*.h"

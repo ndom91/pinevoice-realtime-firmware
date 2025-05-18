@@ -4,3 +4,6 @@
 [submodule "solutions/pinevoice_fw_e907"]
 	path = solutions/pinevoice_fw_e907
 	url = ssh://git@github.com/pine64/pinevoice_fw_e907.git
+[submodule "components/wyoming_c_satellite/src"]
+	path = components/wyoming_c_satellite/src
+	url = https://github.com/gamelaster/wyoming_c_satellite
