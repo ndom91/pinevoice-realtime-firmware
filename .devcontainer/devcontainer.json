@@ -8,6 +8,10 @@
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
 
   "remoteUser": "vscode",
+  "runArgs": [
+    // Uncomment following file with proper path to UART handle of PineVoice, to be able to flash it from within container
+    "--device=/dev/ttyUSB0"
+  ],
 
   "customizations": {
     "vscode": {

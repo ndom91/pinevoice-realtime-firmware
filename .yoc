@@ -1,0 +1,3 @@
+occ_host: occ.t-head.cn
+repo: https://gitee.com/yocop/manifest.git
+branch: master

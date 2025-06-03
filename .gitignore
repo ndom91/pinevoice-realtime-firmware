@@ -1,0 +1,14 @@
+cscope.*
+.vscode
+.project
+gdb.log
+*/*/gdb.log
+tools/flashtool/chips/bl606p/device_tree/ro_params.dtb 
+tools/flashtool/yoc_rfpa.bin
+606p_e907_flash.init 
+solutions/smart_speaker_v2/app/board/bl606p/firmware/c906fdv_fw.h
+
+doc/*
+toolchain/*
+tools/flashtool/*
+!tools/flashtool/.gitkeep

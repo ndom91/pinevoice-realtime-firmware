@@ -8,7 +8,7 @@ keywords:
 license: APACHE
 
 depends:
-  - cjson: develop
+  - cjson: v7.5.y
 #   - minilibc: v7.4.0
 #   - aos: v7.4.0
 

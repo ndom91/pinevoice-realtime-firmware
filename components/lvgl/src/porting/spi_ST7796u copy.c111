@@ -1,0 +1,607 @@
+/*
+ *by tongxiaohua@20220706
+ *ST7796 SCREEN DRIVER test
+ */
+#include <bl606p_common.h>
+#include <misc.h>
+#include <bl606p_glb.h>
+#include <bl606p_gpio.h>
+#include <bl606p_spi.h>
+#include "port_api.h"
+
+#define MAX_SEQ_CMD_LENGTH 32
+#define BMP_HEAD 54 
+
+
+
+uint8_t spi_cs_gpio = GLB_GPIO_PIN_28;
+uint8_t spi_clk_gpio = GLB_GPIO_PIN_27;
+uint8_t spi_mosi_gpio = GLB_GPIO_PIN_26;
+uint8_t spi_dc_gpio = GLB_GPIO_PIN_25;
+uint8_t spi_reset_gpio = GLB_GPIO_PIN_24;
+uint8_t spi_led_gpio = GLB_GPIO_PIN_12;
+uint32_t led_brightness = DEFAULT_BRIGHTNESS;
+hosal_pwm_dev_t pwd_led;
+
+/*
+ *init seq,
+ *-1,cmd start
+ *-2,sleep,ms
+ *-3,end
+ */
+
+// static int spi_screen_init_seq[] = {
+
+//     -1, 0xF0, 0xC3,
+//     -1, 0xF0, 0x96,
+//     -1, 0x36, 0x48,
+//     -1, 0xB4, 0x01,
+//     -1, 0xB7, 0xC6,
+//     -1, 0xE8, 0x40,0x8A,0x00,0x00,0x29,0x19,0xa5,0x33,
+//     -1, 0xC2, 0xA7,
+//     -1, 0xC5, 0x18,
+//     -1, 0xE0, 0xf0,0x0e,0x19,0x10,0x10,0x0c,0x42,0x54,0x4f,0x08,0x0f,0x0b,0x21,0x23,
+//     -1, 0xe1, 0xf0,0x0e,0x19,0x10,0x10,0x1a,0x41,0x44,0x52,0x0d,0x1c,0x1e,0x20,0x23,
+//     -1, 0x3A, 0x05,
+//     -1, 0x21,
+//     -1, 0x35,0x00,
+//     -1, 0x11,
+//     -2, 120,
+//     -1, 0x29,
+//     -1, 0x2c,
+//     -3};
+static int spi_screen_init_seq[] = {
+
+    -1, 0xF0, 0xC3,
+    -1, 0xF0, 0x96,
+    -1, 0x36, 0x48,
+    //-1, 0x3A, 0x66,
+    -1, 0x3A, 0x05,
+    -1, 0xB1,0x80,0x10,
+    -1, 0xB4, 0x01,
+    -1, 0xB6, 0xA0, 0x00, 0x27,
+    -1, 0xB7, 0xC6,
+    -1, 0xE8, 0x40, 0x84, 0x1D, 0x21, 0x28, 0x13, 0x3f, 0x33,
+    -1, 0xC0, 0xA0, 0x07,
+    -1, 0xC5, 0x00,
+    -1, 0xE0, 0xF0, 0x17, 0x1B, 0x0B, 0x0A, 0x08, 0x37, 0x44, 0x4B, 0x3C, 0x17, 0x16, 0x2E, 0x35,
+    -1, 0xE1, 0xF0, 0x1A, 0x1D, 0x08, 0x06, 0x10, 0x37, 0x33, 0x4A, 0x32, 0x10, 0x11, 0x29, 0x31,
+    -1, 0xF0, 0x3C,
+    -1, 0x35, 0x00,
+    -1, 0x21,
+    -1, 0x11,
+    -2, 120,
+    -1, 0x29,
+    -1, 0x2c,
+    -3};
+// static int spi_screen_init_seq[] = {
+//     -1,0xF0,0xC3,
+//     -1,0xF0,0x96,
+//     -1,0x36,0x48,
+//     -1,0x3A,0x55,
+//     -1,0xB4,0x01,
+//     -1,0xB1,0x80,0x10,
+//     -1,0xB5,0x1F,0x39,0x00,0x20,
+//     -1,0xB6,0x8A,0x07,0x27,
+//     -1,0xB7,0xC6,
+//     -1,0xB9,0x02,0xE0,
+//     -1,0xC0,0x80,0x05,
+//     -1,0xC1,0x15,
+//     -1,0xC2,0xA7,
+//     -1,0xC5,0x15,
+//     -1,0xE8,0x40,0x84,0x1D,0x21,0x28,0x13,0x3f,0x33,
+//     -1,0xE0,0xF0,0x03,0x09,0x02,0x01,0x01,0x33,0x44,0x49,0x3A,0x16,0x18,0x2F,0x34,
+//     -1,0xE1,0xF0,0x0F,0x15,0x0D,0x0D,0x28,0x32,0x33,0x49,0x03,0x0D,0x0E,0x28,0x2F,
+//     -1,0xF0,0x3C,
+//     -1,0xF0,0x69,
+//     -1,0x35,0x00,
+//     -1,0x21,
+//     -1,0x11,
+//     -2,120,
+//     -1,0x29,
+//     -3
+// };
+BL_Err_Type hard_spi_screen_reset()
+{
+    // GLB_GPIO_Write(spi_reset_gpio, 1);
+    // arch_delay_us(1000 * 200);
+    GLB_GPIO_Write(spi_reset_gpio, 0);
+    arch_delay_us(1000 * 400);
+    GLB_GPIO_Write(spi_reset_gpio, 1);
+    arch_delay_us(1000 * 400);
+    //arch_delay_us(1000 * 120);
+
+    // LED_LOW;
+    // CS_LOW;
+    //LED_HIGH;
+}
+
+void spi_set_brightness(uint32_t brightness)
+{
+    //把0-10000落到3000-5000的范围，因为经测试30%~50%的占空比才能有变化
+    brightness = brightness/5 + 3000;
+
+    hosal_pwm_config_t pct = {spi_led_gpio,brightness,DEFAULT_PWM_FRRQ};
+
+    led_brightness = brightness;
+
+    hosal_pwm_para_chg(&pwd_led, pct);
+}
+
+/**
+ * @brief spi screen gpio init
+ *
+ * @return None
+ */
+static void hard_spi_screen_gpio_init(void)
+{
+    GLB_GPIO_Type gpioPins[3] = {spi_clk_gpio, spi_mosi_gpio, spi_cs_gpio};
+
+    GLB_GPIO_Cfg_Type reset_gpioCfg = {
+        /* reset */
+        .gpioPin = spi_reset_gpio,
+        .gpioFun = 11,
+        .gpioMode = GPIO_MODE_OUTPUT,
+        .pullType = GPIO_PULL_NONE,
+        .drive = 3,
+        .outputMode = GPIO_OUTPUT_VALUE_MODE,
+        .smtCtrl = 1};
+    GLB_GPIO_Cfg_Type dc_gpioCfg = {
+        /* dc */
+        .gpioPin = spi_dc_gpio,
+        .gpioFun = 11,
+        .gpioMode = GPIO_MODE_OUTPUT,
+        .pullType = GPIO_PULL_NONE,
+        .drive = 3,
+        .outputMode = GPIO_OUTPUT_VALUE_MODE,
+        .smtCtrl = 1};
+    // GLB_GPIO_Cfg_Type led_gpioCfg = {
+    //     /* led */
+    //     .gpioPin = spi_led_gpio,
+    //     .gpioFun = 11,
+    //     .gpioMode = GPIO_MODE_OUTPUT,
+    //     .pullType = GPIO_PULL_NONE,
+    //     .drive = 3,
+    //     .outputMode = GPIO_OUTPUT_VALUE_MODE,
+    //     .smtCtrl = 1};
+
+    GLB_GPIO_Func_Init(GPIO_FUN_SPI0, (GLB_GPIO_Type *)gpioPins, sizeof(gpioPins) / sizeof(gpioPins[0]));
+
+    GLB_GPIO_Init(&reset_gpioCfg);
+    GLB_GPIO_Init(&dc_gpioCfg);
+    //GLB_GPIO_Init(&led_gpioCfg);
+
+    //pwm led
+    pwd_led.port = 0;
+    pwd_led.config.pin = spi_led_gpio;
+    pwd_led.config.duty_cycle = led_brightness;
+    pwd_led.config.freq = DEFAULT_PWM_FRRQ;
+    pwd_led.priv = NULL;
+
+    hosal_pwm_init(&pwd_led);
+    
+
+    // GLB_Set_MCU_SPI_0_ACT_MOD_Sel(GLB_SPI_PAD_ACT_AS_MASTER);
+}
+
+/**
+ * @brief spi screen init
+ *
+ * @return BL_Err_Type
+ */
+BL_Err_Type hard_spi_screen_init(void)
+{
+    SPI_CFG_Type spiCfg = {
+        DISABLE,                      /* Disable de-glitch function */
+        SPI_SLAVE_PIN_4,              /* SPI 4-pin mode(CS is enabled) */
+        ENABLE,                       /* Disable master continuous transfer mode */
+        SPI_BYTE_INVERSE_BYTE0_FIRST, /* The byte 0 is sent first in SPI transfer */
+        SPI_BIT_INVERSE_MSB_FIRST,    /* MSB is sent first in SPI transfer */
+        SPI_CLK_PHASE_INVERSE_1,      /* SPI clock phase */
+        SPI_CLK_POLARITY_HIGH,        /* SPI clock plarity */
+        // SPI_CLK_POLARITY_LOW,
+        SPI_FRAME_SIZE_8 /* SPI frame size 8-bit(also the valid width for each fifo entry) */
+    };
+
+    SPI_ClockCfg_Type clockCfg = {
+        2, /* Length of start condition */
+        2, /* Length of stop condition */
+        2, /* Length of data phase 0,affecting clock */
+        2, /* Length of data phase 1,affecting clock */
+        2  /* Length of interval between frame */
+    };
+
+    /* gpio and pad init */
+    hard_spi_screen_gpio_init();
+    GLB_Swap_MCU_SPI_0_MOSI_With_MISO(ENABLE);
+    GLB_Set_MCU_SPI_0_ACT_MOD_Sel(GLB_SPI_PAD_ACT_AS_MASTER);
+
+
+    /* SPI interrupt config */
+    // SPI_Int_Callback_Install(SPI_USE_ID, SPI_INT_END, SPI_Int_Callback);
+    SPI_IntMask(SPI_NUM, SPI_INT_ALL, MASK);
+    SPI_IntMask(SPI_NUM, SPI_INT_END, UNMASK);
+    // bl_irq_enable(SPI_USE_IRQ);
+    // CPU_Interrupt_Enable(SPI_USE_IRQ);
+    // System_NVIC_SetPriority(SPI_USE_IRQ, 4, 1);
+
+    /* SPI config */
+    SPI_Init(SPI_NUM, &spiCfg);
+    /* Set SPI clock */
+    SPI_ClockConfig(SPI_NUM, &clockCfg);
+    SPI_SetClock(SPI_NUM, 80000000);
+    /* Enable spi master mode */
+    SPI_Enable(SPI_NUM, SPI_WORK_MODE_MASTER);
+
+    hard_spi_screen_reset();
+    
+    return SUCCESS;
+}
+
+BL_Err_Type spi_screen_deinit()
+{
+    hosal_pwm_stop(&pwd_led);
+    hosal_pwm_finalize(&pwd_led);
+    SPI_Disable(SPI_NUM, SPI_WORK_MODE_MASTER);
+    SPI_DeInit(SPI_NUM);
+
+    return SUCCESS;
+}
+
+void spi_screen_write_reg(uint8_t byte)
+{
+#if SOFT_SPI
+    soft_spi_write_reg(byte);
+#else
+    BL_Err_Type err = SUCCESS;
+    DC_LOW;
+    if ((err = SPI_SendData(SPI_NUM, &byte, 1, SPI_TIMEOUT_ENABLE)) != SUCCESS)
+    {
+        int j = 0;
+        printf("send data :[%x]faild !err = %d\r\n", byte, err);
+    }
+#endif
+}
+
+void spi_screen_write_data(uint8_t byte)
+{
+#if SOFT_SPI
+    soft_spi_write_data(byte);
+#else
+    BL_Err_Type err = SUCCESS;
+    DC_HIGH;
+    if ((err = SPI_SendData(SPI_NUM, &byte, 1, SPI_TIMEOUT_ENABLE)) != SUCCESS)
+    {
+        int j = 0;
+        printf("send data :[%x]faild !err = %d\r\n", byte, err);
+    }
+#endif
+}
+
+void spi_screen_write_byte(uint8_t byte)
+{
+#if SOFT_SPI
+    soft_spi_write_byte(byte);
+#else
+    BL_Err_Type err = SUCCESS;
+    if ((err = SPI_SendData(SPI_NUM, &byte, 1, SPI_TIMEOUT_ENABLE)) != SUCCESS)
+    {
+        int j = 0;
+        printf("send data :[%x]faild !err = %d\r\n", byte, err);
+    }
+#endif
+}
+
+void spi_screen_write_len(uint8_t *byte, uint32_t len)
+{
+#if SOFT_SPI
+    uint32_t i = 0;
+    for(i = 0; i < len; i++)
+    {
+        soft_spi_write_byte(byte+i);
+    }
+    
+#else
+    BL_Err_Type err = SUCCESS;
+    if ((err = SPI_SendData(SPI_NUM, byte, len, SPI_TIMEOUT_ENABLE)) != SUCCESS)
+    {
+        int j = 0;
+        printf("send data :[%x]faild !err = %d\r\n", byte, err);
+    }
+#endif
+}
+
+void spi_screen_write_data16(uint16_t data)
+{
+    spi_screen_write_data(data >> 8);
+    spi_screen_write_data(data);
+}
+
+static void SetAddress(uint16_t x_start, uint16_t y_start, uint16_t x_end, uint16_t y_end)
+{
+    uint8_t data[4] = {0};
+    spi_screen_write_reg(0x2a);
+    spi_screen_write_data16(x_start);
+    spi_screen_write_data16(x_end);
+    spi_screen_write_reg(0x2b);
+    spi_screen_write_data16(y_start);
+    spi_screen_write_data16(y_end);
+    spi_screen_write_reg(0x2c);
+}
+
+void hard_spi_lcd_test(void)
+{
+
+    uint32_t i, j, k = 0;
+    SetAddress(0, 0, 319, 319);
+    DC_HIGH;
+    for (i = 0; i < 320; i++)
+    {
+        for (j = 0; j < 320; j++)
+        {
+            spi_screen_write_byte(0x00);
+            spi_screen_write_byte(0x00);
+            spi_screen_write_byte(0xff);
+        }
+    }
+}
+
+void soft_spi_screen_reset();
+void soft_spi_screen_init();
+void soft_spi_write_reg(uint8_t byte);
+void soft_spi_write_data(uint8_t byte);
+void screen_init();
+void spi_lcd_test(void);
+
+void screen_init()
+{
+
+    uint8_t send_buf[MAX_SEQ_CMD_LENGTH] = {0};
+    int i = 0, send_buf_len = 0;
+    int x = 0,y = 0;
+
+    printf("start init:%d\r\n",bl_os_clock_gettime_ms());
+    spi_screen_init();
+    printf("end init:%d\r\n",bl_os_clock_gettime_ms());
+
+    for (i = 0; i < sizeof(spi_screen_init_seq) / sizeof(spi_screen_init_seq[0]); i++)
+    {
+        if (spi_screen_init_seq[i] != -1 && spi_screen_init_seq[i] != -2 && spi_screen_init_seq[i] != -3)
+        {
+
+            send_buf[send_buf_len++] = spi_screen_init_seq[i];
+        }
+        else if (spi_screen_init_seq[i] == -2)
+        {
+            //printf("delay %d\r\n", spi_screen_init_seq[i + 1]);
+            arch_delay_us(1000 * spi_screen_init_seq[i + 1]);
+            i++;
+        }
+        else
+        {
+            //printf("start or end!\r\n");
+            if (send_buf_len > 0)
+            {
+                int j = 0;
+                //printf("send cmd:%02x\r\n", send_buf[j]);
+                spi_screen_write_reg(send_buf[j]);
+                for (j = 1; j < send_buf_len; j++)
+                {
+                    //printf("send byte:%02x\r\n", send_buf[j]);
+                    spi_screen_write_byte(send_buf[j]);
+                }
+            }
+
+            memset(send_buf, 0, sizeof(send_buf));
+            send_buf_len = 0;
+        }
+    }
+    printf("screen_init success!%d\r\n",bl_os_clock_gettime_ms());
+
+
+    //Show Logo
+    {
+        FILE *ff = fopen("/data/prompt/logo.bmp", "r");
+        char *buff = NULL;
+        int size = 0; 
+        if (ff == NULL)
+        {
+            printf("Failed to open file for reading");
+            return;
+        }
+        fseek(ff, 0, SEEK_END);
+        size = ftell(ff);
+        printf("size:%d\r\n",size);
+        rewind(ff);
+        buff = (char *)malloc(size);
+        
+        SetAddress(0, 0, 319, 319);
+        DC_HIGH;
+        fread(buff,1,size,ff);
+        spi_screen_write_len(&buff[BMP_HEAD],size-BMP_HEAD);
+        
+         free(buff);
+         fclose(ff);
+    }
+
+
+    //LED_HIGH;
+    hosal_pwm_start(&pwd_led);
+
+    printf("Logo end!%d\r\n",bl_os_clock_gettime_ms());
+
+}
+
+// api
+void spi_screen_set_address(uint16_t x_start, uint16_t y_start, uint16_t x_end, uint16_t y_end)
+{
+    SetAddress(x_start, y_start, x_end, y_end);
+}
+void spi_screen_reset()
+{
+#if SOFT_SPI
+    soft_spi_screen_reset();
+#else
+    hard_spi_screen_reset();
+#endif
+}
+void spi_screen_init()
+{
+#if SOFT_SPI
+    soft_spi_screen_init();
+#else
+    hard_spi_screen_init();
+#endif
+}
+
+///////////////////SOFT SPI////////////////////////////////////////////////////////////
+
+void soft_spi_screen_reset()
+{
+    GLB_GPIO_Write(spi_reset_gpio, 1);
+    arch_delay_us(1000 * 200);
+    GLB_GPIO_Write(spi_reset_gpio, 0);
+    arch_delay_us(1000 * 800);
+    GLB_GPIO_Write(spi_reset_gpio, 1);
+    arch_delay_us(1000 * 800);
+    arch_delay_us(1000 * 120);
+}
+
+void soft_spi_screen_init()
+{
+    GLB_GPIO_Cfg_Type cs_gpioCfg = {
+
+        .gpioPin = spi_cs_gpio,
+        .gpioFun = 11,
+        .gpioMode = GPIO_MODE_OUTPUT,
+        .pullType = GPIO_PULL_NONE,
+        .drive = 3,
+        .smtCtrl = 1};
+    GLB_GPIO_Cfg_Type clk_gpioCfg = {
+
+        .gpioPin = spi_clk_gpio,
+        .gpioFun = 11,
+        .gpioMode = GPIO_MODE_OUTPUT,
+        .pullType = GPIO_PULL_NONE,
+        .drive = 3,
+        .smtCtrl = 1};
+    GLB_GPIO_Cfg_Type mosi_gpioCfg = {
+
+        .gpioPin = spi_mosi_gpio,
+        .gpioFun = 11,
+        .gpioMode = GPIO_MODE_OUTPUT,
+        .pullType = GPIO_PULL_NONE,
+        .drive = 3,
+        .smtCtrl = 1};
+    GLB_GPIO_Cfg_Type dc_gpioCfg = {
+
+        .gpioPin = spi_dc_gpio,
+        .gpioFun = 11,
+        .gpioMode = GPIO_MODE_OUTPUT,
+        .pullType = GPIO_PULL_NONE,
+        .drive = 3,
+        .smtCtrl = 1};
+    GLB_GPIO_Cfg_Type reset_gpioCfg = {
+
+        .gpioPin = spi_reset_gpio,
+        .gpioFun = 11,
+        .gpioMode = GPIO_MODE_OUTPUT,
+        .pullType = GPIO_PULL_NONE,
+        .drive = 3,
+        .smtCtrl = 1};
+    GLB_GPIO_Cfg_Type led_gpioCfg = {
+
+        .gpioPin = spi_led_gpio,
+        .gpioFun = 11,
+        .gpioMode = GPIO_MODE_OUTPUT,
+        .pullType = GPIO_PULL_NONE,
+        .drive = 3,
+        .smtCtrl = 1};
+
+    GLB_GPIO_Init(&cs_gpioCfg);
+    GLB_GPIO_Init(&clk_gpioCfg);
+    GLB_GPIO_Init(&mosi_gpioCfg);
+    GLB_GPIO_Init(&dc_gpioCfg);
+    GLB_GPIO_Init(&reset_gpioCfg);
+    GLB_GPIO_Init(&led_gpioCfg);
+
+    soft_spi_screen_reset();
+
+    CS_HIGH;
+    CLK_HIGH;
+    //LED_HIGH;
+}
+
+/*CPOL=0,CPHA=0*/
+void soft_spi_write_byte(uint8_t byte)
+{
+    uint8_t i = 0;
+    CS_LOW;
+    for (i = 0; i < 8; i++)
+    {
+
+        if (byte & 0x80)
+            MOSI_HIGE;
+        else
+            MOSI_LOW;
+        byte <<= 1;
+        CLK_LOW;
+        // arch_delay_us(1);
+        CLK_HIGH;
+    }
+    CS_HIGH;
+}
+
+void soft_spi_write_reg(uint8_t byte)
+{
+    CS_LOW;
+    DC_LOW;
+    soft_spi_write_byte(byte);
+    CS_HIGH;
+}
+
+void soft_spi_write_data(uint8_t byte)
+{
+    CS_LOW;
+    DC_HIGH;
+    soft_spi_write_byte(byte);
+    CS_HIGH;
+}
+
+void soft_spi_write_data16(uint16_t data)
+{
+    soft_spi_write_data(data >> 8);
+    soft_spi_write_data(data);
+}
+
+// static void SetAddress(uint16_t x_start,uint16_t y_start,uint16_t x_end,uint16_t y_end)
+// {
+
+//     soft_spi_write_reg(0x2a);
+//     soft_spi_write_data16(x_start);
+//     soft_spi_write_data16(x_end);
+//     soft_spi_write_reg(0x2b);
+//     soft_spi_write_data16(y_start);
+//     soft_spi_write_data16(y_end);
+//     soft_spi_write_reg(0x2c);
+
+// }
+
+void soft_spi_lcd_test(void)
+{
+
+    uint32_t i, j, k = 0;
+    SetAddress(0, 0, 319, 319);
+    CS_LOW;
+    DC_HIGH;
+    for (i = 0; i < 320; i++)
+    {
+        for (j = 0; j < 320; j++)
+        {
+            soft_spi_write_byte(0x00);
+            soft_spi_write_byte(0x00);
+            soft_spi_write_byte(0xff);
+        }
+    }
+    CS_HIGH;
+}

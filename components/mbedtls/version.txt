@@ -1,0 +1,2 @@
+https://github.com/Mbed-TLS/mbedtls.git
+dd79db10014d85b26d11fe57218431f2e5ede6f2

@@ -1,0 +1,174 @@
+
+## 第一部分： 基础信息
+name: mbedtls                                       # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: v7.5.y                                     # <必选项> 组件版本号
+description: mbed TLS                               # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+tag: 通用组件                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本
+# sdk_chip:                                # <可选项> 该组件依赖sdk组件，合理的依赖才能保证组件能编译、使用
+#   - sdk_chip_csky_dummy: v7.4.0
+#   - sdk_chip_riscv_dummy: v7.4.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.4.0
+#   - aos: v7.4.0
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  cflag: '-fexpensive-optimizations -funroll-loops'
+  include:
+    - mbedtls2.28.1/include
+    - port/yoc/include
+    - port/yoc/threading_alt
+  internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+    - mbedtls2.28.1/library
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - "mbedtls2.28.1/library/xtea.c"
+  - "mbedtls2.28.1/library/aes.c" 
+  - "mbedtls2.28.1/library/aesni.c"
+  - "mbedtls2.28.1/library/arc4.c" 
+  - "mbedtls2.28.1/library/aria.c" 
+  - "mbedtls2.28.1/library/asn1parse.c"
+  - "mbedtls2.28.1/library/asn1write.c" 
+  - "mbedtls2.28.1/library/base64.c" 
+  - "mbedtls2.28.1/library/blowfish.c" 
+  - "mbedtls2.28.1/library/camellia.c" 
+  - "mbedtls2.28.1/library/ccm.c" 
+  - "mbedtls2.28.1/library/certs.c" 
+  - "mbedtls2.28.1/library/chacha20.c" 
+  - "mbedtls2.28.1/library/chachapoly.c" 
+  - "mbedtls2.28.1/library/cipher.c" 
+  - "mbedtls2.28.1/library/cipher_wrap.c" 
+  - "mbedtls2.28.1/library/cmac.c" 
+  - "mbedtls2.28.1/library/constant_time.c"
+  - "mbedtls2.28.1/library/ctr_drbg.c" 
+  - "mbedtls2.28.1/library/debug.c" 
+  - "mbedtls2.28.1/library/des.c" 
+  - "mbedtls2.28.1/library/dhm.c" 
+  - "mbedtls2.28.1/library/ecdh.c" 
+  - "mbedtls2.28.1/library/ecdsa.c" 
+  - "mbedtls2.28.1/library/ecjpake.c"
+  - "mbedtls2.28.1/library/ecp.c" 
+  - "mbedtls2.28.1/library/ecp_curves.c" 
+  - "mbedtls2.28.1/library/entropy.c" 
+  - "mbedtls2.28.1/library/entropy_poll.c" 
+  - "mbedtls2.28.1/library/error.c" 
+  - "mbedtls2.28.1/library/gcm.c" 
+  - "mbedtls2.28.1/library/havege.c" 
+  - "mbedtls2.28.1/library/hkdf.c" 
+  - "mbedtls2.28.1/library/hmac_drbg.c" 
+  - "mbedtls2.28.1/library/md2.c" 
+  - "mbedtls2.28.1/library/md4.c" 
+  - "mbedtls2.28.1/library/md5.c" 
+  - "mbedtls2.28.1/library/md.c" 
+  - "mbedtls2.28.1/library/memory_buffer_alloc.c" 
+  - "mbedtls2.28.1/library/mps_reader.c" 
+  - "mbedtls2.28.1/library/mps_trace.c" 
+  - "mbedtls2.28.1/library/nist_kw.c" 
+  - "mbedtls2.28.1/library/oid.c" 
+  - "mbedtls2.28.1/library/padlock.c"
+  - "mbedtls2.28.1/library/pem.c" 
+  - "mbedtls2.28.1/library/pk.c" 
+  - "mbedtls2.28.1/library/pkcs11.c" 
+  - "mbedtls2.28.1/library/pkcs12.c" 
+  - "mbedtls2.28.1/library/pkcs5.c" 
+  - "mbedtls2.28.1/library/pk_wrap.c" 
+  - "mbedtls2.28.1/library/pkwrite.c" 
+  - "mbedtls2.28.1/library/platform.c" 
+  - "mbedtls2.28.1/library/platform_util.c" 
+  - "mbedtls2.28.1/library/poly1305.c" 
+  - "mbedtls2.28.1/library/ripemd160.c" 
+  - "mbedtls2.28.1/library/rsa.c" 
+  - "mbedtls2.28.1/library/rsa_internal.c" 
+  - "mbedtls2.28.1/library/sha1.c" 
+  - "mbedtls2.28.1/library/sha256.c"
+  - "mbedtls2.28.1/library/sha512.c" 
+  - "mbedtls2.28.1/library/ssl_cache.c" 
+  - "mbedtls2.28.1/library/ssl_ciphersuites.c" 
+  - "mbedtls2.28.1/library/ssl_cli.c" 
+  - "mbedtls2.28.1/library/ssl_cookie.c" 
+  - "mbedtls2.28.1/library/ssl_msg.c" 
+  - "mbedtls2.28.1/library/ssl_srv.c" 
+  - "mbedtls2.28.1/library/ssl_ticket.c" 
+  - "mbedtls2.28.1/library/ssl_tls13_keys.c" 
+  - "mbedtls2.28.1/library/ssl_tls.c" 
+  - "mbedtls2.28.1/library/threading.c" 
+  - "mbedtls2.28.1/library/timing.c" 
+  - "mbedtls2.28.1/library/version.c" 
+  - "mbedtls2.28.1/library/version_features.c" 
+  - "mbedtls2.28.1/library/x509.c" 
+  - "mbedtls2.28.1/library/x509_create.c" 
+  - "mbedtls2.28.1/library/x509_crl.c" 
+  - "mbedtls2.28.1/library/x509_crt.c" 
+  - "mbedtls2.28.1/library/x509_csr.c"
+  - "mbedtls2.28.1/library/x509write_crt.c" 
+  - "mbedtls2.28.1/library/x509write_csr.c" 
+  - "mbedtls2.28.1/library/xtea.c" 
+  - "mbedtls2.28.1/library/bignum.c" 
+  - "mbedtls2.28.1/library/pkparse.c" 
+  - "port/yoc/net_sockets.c"
+  - "port/yoc/threading_alt/threading_alt.c"
+  - "port/yoc/hw_entropy_poll.c"
+    
+    #  - "platform/yoc/rsa_alt.c"
+    #  - "platform/yoc/sha1_alt.c"
+    #  - "platform/yoc/sha256_alt.c"
+    #  - "platform/yoc/aes_alt.c"
+    #  - "platform/yoc/threading_alt.c"
+
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+def_config:
+    CONFIG_COMP_MBEDTLS: y
+    MBEDTLS_CONFIG_FILE: "platform_config.h"
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相对路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+install:
+  - dest: "include/mbedtls"
+    source:
+      - "include/mbedtls/*.h"
+      - "platform/yoc/include/*.h"
+  - dest: "include/mbedtls/configs"
+    source:
+      - "platform/include/*.h"
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相对路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

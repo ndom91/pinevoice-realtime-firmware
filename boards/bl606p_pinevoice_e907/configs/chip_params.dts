@@ -1,0 +1,39 @@
+/dts-v1/;
+/include/ "bl606p_base.dtsi";
+// version: 17
+// last_comp_version: 16
+// boot_cpuid_phys: 0x0
+
+/ {
+    model = "bl606p IOT board";
+    compatible = "bl,bl606p-sample", "bl,bl606p-common";
+    wifi {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        brd_rf {
+            xtal_mode = "MF";
+            xtal = <36 36 0 60 60>;
+            pwr_mode = "bf";//B: only use power offset in EFUSE; b: use power offset in EFUSE with incremental mode; F: only use power offset in Flash; f: use power offset in Flash with incremental mode
+            pwr_table_11b = <17 17 17 17>;//1Mbps 2Mbps 5.5Mbps 11Mbps
+            pwr_table_11g = <15 15 15 15 15 15 15 15>; //6Mbps 9Mbps 12Mbps 18MBps 24Mbps 36Mbps 48Mbps 54Mbps
+            pwr_table_11n = <14 14 14 14 14 14 14 14>; //MCS0 MCS1 MCS2 MCS3 MCS4 MCS5 MCS6 MCS7
+            pwr_offset = <16 16 16 16 16 16 16 16 16 16 16 16 16 16>;//due to the limit of current DTC, negative value is used. So we work around by adding all the poweroffset with 10. so 8 represents -2; 10 represents 0; 13 represents 3
+        };
+        rf_temp {                                                                                                    
+            en_tcal = <0>;                                                                                           
+            linear_or_follow = <1>;                                                                                  
+            Tchannels       = <2412 2427 2442 2457 2472>;                                                            
+            Tchannel_os     = <180  168  163  160  157>;                                                             
+            Tchannel_os_low = <199  186  170  165  160>;                                                             
+            Troom_os        = <255>;                                                                                 
+            //negative value is NOT supported. So we use '256' for 0, '255' for -1, '257' for 1,'511' for 256        
+        };
+    };
+    bluetooth {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        brd_rf {
+            pwr_table_ble = <13>;  //range:0~15dbm
+        };
+    };
+};

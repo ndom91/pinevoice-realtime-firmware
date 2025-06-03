@@ -1,0 +1,287 @@
+
+## 第一部分： 基础信息
+name: chip_bl606p                                  # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: develop                                   # <必选项> 组件版本号
+description: driver & sdk for platform/mcu bl606p chip         # <必选项> 建议至少20字以上
+type: chip                                         # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+
+hw_info:
+  cpu0:
+    cpu_name: c906fdv
+  cpu1:
+    cpu_name: e907fp
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  define:
+  cflag: -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-unused-function -fno-jump-tables
+  cxxflag:
+  ldflag:
+  asmflag: -D__ASSEMBLY__
+  include:
+    - include/
+    - drivers/blyoc_flash
+    - drivers
+    - drivers/blyoc_mbox
+    - drivers/soc_std/bsp/regs
+    - drivers/soc_std/bsp/std_drv/inc
+    - drivers/soc_std/bsp/startup/m0/source
+    - drivers/hosal/bl606p_hal
+    - drivers/hosal/include
+    - utils/include
+    - drivers/blyoc_flash
+    #- drivers/blyoc_audio
+    # - drivers/blyoc_ringbuffer
+    - drivers/bl_usb
+
+    - os_adapter/bl_os_adapter
+    - os_adapter/bl_os_adapter/include
+    - os_adapter/bl_os_adapter/include/bl_os_adapter
+    - tg/include
+    - xz 
+
+    - blcrypto_suite/inc
+
+    - usb_stack/class/audio
+    - usb_stack/core
+    - usb_stack/common
+    - usb_stack
+
+    - peripherals/include
+    - peripherals/bl606p_code/bl_code
+    - peripherals/bl606p_code
+    - peripherals/config
+    - peripherals/config/common
+    - drivers/soc_std/common/soft_crc
+  internal_include:
+    - boards
+    - boards/<cpu>/sys
+    - drivers/ll
+    - drivers
+
+    - blcrypto_suite/priv_inc
+
+    #std_driver
+    - drivers/soc_std/bsp
+    - drivers/soc_std/common/misc
+    - drivers/soc_std/common/misc/compiler
+    - drivers/soc_std/bsp/risc-v/Core/Include
+    - drivers/soc_std/bsp/risc-v/csi_dsp/include
+    - drivers/soc_std/bsp/risc-v
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - peripherals/bl606p_code/bl_code/*.c
+  #- peripherals/bl606p_code/bl_code/bl_irq.c
+  #- peripherals/bl606p_code/bl_code/bl_pwm.c
+  - peripherals/bl606p_code/hosal_code/*.c
+  - peripherals/bl606p_code/hal_code/hal_board.c ? <CONFIG_CPU_E907>
+  - boards/<cpu>/sys/*.c
+  - boards/<cpu>/sys/*.S
+  - boards/*.c
+  ## TODO:后面该部分代码是必须的，无论是否适配了该部分代码，都需要编译该部分程序,当前可以更改
+  - utils/src/utils_list.c
+  - utils/src/utils_dns.c
+  - utils/src/utils_tlv_bl.c
+  - utils/src/utils_crc.c
+  - utils/src/utils_getopt.c
+  - utils/src/utils_string.c
+  - utils/src/utils_hex.c
+
+  # - drivers/uart.c
+  - drivers/mbox.c
+  - drivers/csi_codec.c ? <CONFIG_CPU_E907>
+  - drivers/random.c
+  - drivers/csi_flash.c
+  - drivers/csi_gpio.c
+  - drivers/csi_wdt.c
+  - drivers/csi_rtc.c
+  - drivers/csi_pwm.c
+  - drivers/csi_pinmux.c
+  - drivers/csi_gpio_pin.c
+  - drivers/csi_timer.c
+  - drivers/csi_uart.c
+  - drivers/csi_adc.c
+  - drivers/csi_spi.c
+  - drivers/csi_i2c.c
+    #- drivers/debug.c
+  - drivers/hosal/bl606p_hal/bl_sec.c
+  - drivers/hosal/bl606p_hal/bl_irq.c
+  - drivers/hosal/bl606p_hal/bl_pm.c
+  - drivers/hosal/bl606p_hal/hal_sys.c
+  - drivers/hosal/bl606p_hal/bl_wifi.c ? <CONFIG_CPU_E907>
+  - drivers/hosal/bl606p_hal/hal_boot2.c ? <CONFIG_CPU_E907>
+  - drivers/hosal/bl606p_hal/bl_boot2.c ? <CONFIG_CPU_E907>
+  - drivers/hosal/bl606p_hal/bl_sec_sha.c ? <CONFIG_CPU_E907>
+
+  ## TODO:后面该部分代码是必须的，无论是否适配了该部分代码，都需要编译该部分程序,当前状况可以更改
+  - drivers/blyoc_sys/bl_sys.c
+  - drivers/blyoc_sys/blyoc_sys.c
+  # - drivers/blyoc_uart/blyoc_uart.c
+  - drivers/blyoc_flash/blyoc_flash.c
+  - drivers/blyoc_mbox/bl_ipc.c ? <CONFIG_COMP_IPC>
+  - drivers/blyoc_mbox/blyoc_mbox.c ? <CONFIG_COMP_IPC>
+#  - drivers/blyoc_mbox/blyoc_test_mbox.c ? <CONFIG_COMP_IPC>
+  - drivers/blyoc_mbox/ipc_client_cp.c ? <CONFIG_COMP_IPC>
+  - drivers/blyoc_mbox/ipc_mem.c ? <CONFIG_COMP_IPC>
+  - drivers/bl_usb/bl_usb.c ? <CONFIG_CPU_E907>
+
+  #- drivers/blyoc_audio/audio_middleware.c
+  #- drivers/blyoc_audio/audio_middleware_main.c
+  # - drivers/blyoc_audio/audio_ipc.c ? <CONFIG_CPU_C906>
+  #- drivers/blyoc_audio/audio_cli_input.c ? <CONFIG_CPU_E907>
+  #- drivers/blyoc_audio/audio_cli_output.c ? <CONFIG_CPU_E907>
+#- drivers/blyoc_audio/audio_cli_loop.c ? <CONFIG_CPU_E907>
+#- drivers/blyoc_audio/audio_cli_inputoutput.c ? <CONFIG_CPU_E907>
+  #- drivers/blyoc_audio/codec_output.c ? <CONFIG_CPU_E907>
+  #- drivers/blyoc_audio/codec_input.c ? <CONFIG_CPU_E907>
+    #- drivers/blyoc_audio/blyoc_audio_output.c  ? <CONFIG_CPU_E907>
+    #- drivers/blyoc_audio/blyoc_audio_input.c ? <CONFIG_CPU_E907>
+    #- drivers/blyoc_audio/blyoc_audio_test_loop.c ? <CONFIG_CPU_E907>
+    #- drivers/blyoc_audio/blyoc_audio_test_tx.c ? <CONFIG_CPU_E907>
+    #- drivers/blyoc_audio/blyoc_audio_test_rx.c ? <CONFIG_CPU_E907>
+  #- drivers/blyoc_audio/blyoc_get_db.c ? <CONFIG_CPU_E907>
+  # - drivers/blyoc_audio/wa_all.c ? <CONFIG_CPU_E907>
+
+  # - drivers/blyoc_ringbuffer/blyoc_ringbuffer.c ? <CONFIG_CPU_E907>
+  # - drivers/blyoc_dma/blyoc_dma.c
+ # - drivers/blyoc_codec/aupdm_middleware.c
+ # - drivers/blyoc_codec/blyoc_aupdm_main.c
+
+  #std_driver
+  - drivers/soc_std/bsp/std_drv/src/bl606p_uart.c  #? <CONFIG_CPU_C906>
+    #- drivers/soc_std/bsp/std_drv/src/bl606p_clock.c  ? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_clock.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_ef_ctrl.c  #? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_ef_cfg.c  #? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_pds.c  #? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_sflash.c  #? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_xip_sflash.c  #? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_glb.c  #? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_glb_gpio.c  #? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_l1c.c  #? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_aon.c #? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_common.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_hbn.c  #? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_sf_ctrl.c  #? <CONFIG_CPU_C906>
+  - drivers/soc_std/bsp/std_drv/src/bl606p_acomp.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_adc.c
+  #- drivers/soc_std/bsp/std_drv/src/bl606p_audio.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_dma.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_emac.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_i2c.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_i2s.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_ipc.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_ir.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_lz4d.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_psram.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_pwm.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_sec_dbg.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_sec_eng.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_sf_cfg.c
+  # - drivers/soc_std/bsp/std_drv/src/bl606p_sf_cfg_ext.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_spi.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_timer.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_touch.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_tzc_sec.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_aupdm.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_usb.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_xip_sflash.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_mfg_efuse.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_mfg_flash.c
+  - drivers/soc_std/bsp/std_drv/src/bl606p_mfg_media.c
+  # - drivers/soc_std/bsp/std_drv/src/bl606p_romapi_e907.c #? <CONFIG_CPU_E907>
+  # - drivers/soc_std/bsp/std_drv/src/bl606p_romapi_patch.c #? <CONFIG_CPU_E907>
+  - drivers/soc_std/common/soft_crc/softcrc.c
+  - drivers/soc_std/common/misc/misc.c
+
+  - os_adapter/bl_os_adapter/bl_os_hal.c
+
+    #  - blcrypto_suite/src/blcrypto_suite_bignum.c ? <CONFIG_CPU_E907>
+  - blcrypto_suite/src/blcrypto_suite_ecp.c ? <CONFIG_CPU_E907>
+  - blcrypto_suite/src/blcrypto_suite_ecp_curves.c ? <CONFIG_CPU_E907>
+  - blcrypto_suite/src/blcrypto_suite_platform_util.c ? <CONFIG_CPU_E907>
+  - blcrypto_suite/src/blcrypto_suite_porting.c ? <CONFIG_CPU_E907>
+  - blcrypto_suite/src/blcrypto_suite_hacc.c ? <CONFIG_CPU_E907>
+  - blcrypto_suite/src/blcrypto_suite_aes.c ? <CONFIG_CPU_E907>
+  - blcrypto_suite/src/blcrypto_suite_hacc_glue.c ? <CONFIG_CPU_E907>
+  - blcrypto_suite/src/blcrypto_suite_hacc_secp256r1_mul.c ? <CONFIG_CPU_E907>
+  - blcrypto_suite/src/blcrypto_suite_supplicant_api.c ? <CONFIG_CPU_E907>
+  - blcrypto_suite/src/blcrypto_suite_export_fw.c ? <CONFIG_CPU_E907>
+
+  - usb_stack/class/audio/usbd_audio.c ? <CONFIG_CPU_E907>
+  - usb_stack/core/usbd_core.c ? <CONFIG_CPU_E907>
+  
+  # xz_crc32.c xz_dec_lzma2.c xz_dec_stream.c xz_decompress.c xz_port.c
+  - xz/xz_crc32.c ? <CONFIG_CPU_E907>
+  - xz/xz_dec_lzma2.c ? <CONFIG_CPU_E907>
+  - xz/xz_dec_stream.c ? <CONFIG_CPU_E907>
+  - xz/xz_decompress.c ? <CONFIG_CPU_E907>
+  - xz/xz_port.c ? <CONFIG_CPU_E907>
+  - xz/xz_api.c ? <CONFIG_CPU_E907>
+  
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+def_config:
+  CONFIG_CHIP_BL606P: 1
+  HAVE_INIT_ARRAY_LD: y
+  CONFIG_NON_ADDRESS_FLASH: y
+  CONFIG_CSI_V2: 1
+  CONFIG_CSI: "csi2"
+  CONFIG_ARCH_INTERRUPTSTACK: 4096
+  CONFIG_TICK_TIMER_IDX: 0
+  CONFIG_TICK_USE_CORETIME: y
+  BLCRYPTO_MBEDTLS_BIGNUM_MULTIPLEX: 1
+  #CONFIG_USB_HS: 1
+  CONFIG_USB_DCACHE_ENABLE: 1
+  CONFIG_SHM_ALIGN_CACHE: 64
+  CFG_CHIP_BL606P: 1
+
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

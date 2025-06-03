@@ -1,6 +1,40 @@
 {
   "folders": [
-    { "name": "MCU project", "path": "solutions/pinevoice_fw_e907" },
-    { "name": "DSP project", "path": "solutions/pinevoice_fw_c906" }
-  ]
+    {
+      "name": "MCU project",
+      "path": "solutions/pinevoice_fw_e907"
+    },
+    {
+      "name": "DSP project",
+      "path": "solutions/pinevoice_fw_c906"
+    },
+    {
+      "name": "SDK",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/compile_commands.json",
+    "files.exclude": {
+        "out/**": true,
+        "yoc_sdk/**": true,
+        "**/*.i": true,
+    },
+    "files.watcherExclude": {
+        "out/**": true,
+        "yoc_sdk/**": true,
+        "**/*.i": true,
+    },
+    "C_Cpp.files.exclude": {
+      "**/*.i": true,
+      "**/.vscode": true,
+      "**/.vs": true,
+      "yoc_sdk/**": true,
+      "out/**": true,
+    },
+    "C_Cpp.codeAnalysis.exclude": {
+      "**/*.i": true,
+      "out/**": true,
+    }
+  }
 }
