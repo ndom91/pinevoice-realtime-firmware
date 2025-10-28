@@ -1,0 +1,29 @@
+name: microwakeword
+version: develop
+description: MicroWakeWord
+type: common
+tag: wakeword
+keywords:
+  - wakeword
+license: APACHE # TODO
+
+depends:
+  - tflite_micro: develop
+
+build_config:
+  include:
+    - src
+    - MicroSpeechFeatures/include
+  cxxflag: -fno-rtti # -O3
+  cflag: # -O3
+
+source_file:
+  - src/*.cpp
+  - src/*.c
+  - MicroSpeechFeatures/src/*.c
+
+
+# install:
+#   - dest: "include"
+#     source:
+#       - "include/*.h"
