@@ -35,6 +35,8 @@
     "C_Cpp.codeAnalysis.exclude": {
       "**/*.i": true,
       "out/**": true,
-    }
+    },
+    // To avoid __linux__=1
+    "C_Cpp.default.intelliSenseMode": "macos-gcc-x64",
   }
 }

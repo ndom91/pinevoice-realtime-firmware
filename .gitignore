@@ -12,3 +12,14 @@ doc/*
 toolchain/*
 tools/flashtool/*
 !tools/flashtool/.gitkeep
+
+solutions/ipc_c906/*
+solutions/ipc_e907/*
+solutions/smart_speaker_chatgpt/*
+solutions/smart_speaker_v2/*
+solutions/smart_speaker_v2dsp/*
+
+boards/bl606p_dvk_e907c/*
+boards/bl606p_evb_c906c/*
+boards/bl606p_evb_e907c/*
+boards/bl606p_trv03_e907c/*

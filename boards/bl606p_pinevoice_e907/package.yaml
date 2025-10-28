@@ -82,7 +82,7 @@ build_config:
   ldflag: -Wl,-Map=yoc.map
   cxxflag: >
         -D_GLIBCXX_HAS_GTHREADS -save-temps=obj
-        -std=gnu++11 -fno-common -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fpermissive -g -Os
+        -std=c++14 -fno-common -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fpermissive -g -Os
   include:
     - include
     - src
