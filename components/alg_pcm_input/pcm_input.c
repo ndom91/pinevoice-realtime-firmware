@@ -17,7 +17,7 @@
 
 #define IPC_CMD_PCM_DATA_SEND        0x11
 #define MIC_DATA_IPC_SERIVCE_ID      0xEE
-#define PCM_PRIOD_MS 20
+#define PCM_PRIOD_MS 10
 #define PCM_RATE     16000
 #define PCM_CHN      3
 #define PCM_FRAME    16
