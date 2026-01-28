@@ -12,7 +12,7 @@
 #define BUTTON_ID_VOL_DOWN    2
 #define BUTTON_ID_MUTE        3
 #define BUTTON_ID_PLAY        4
-//#define BUTTON_ID_USER        5
+#define BUTTON_ID_USER        5
 #define BUTTON_ID_VOL_UP_DOWN 6
 #define BUTTON_ID_VOL_UP_MUTE 7
 

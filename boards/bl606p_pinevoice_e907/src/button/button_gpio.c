@@ -32,6 +32,11 @@ static button_gpio_conf_t button_gpio_confs[] = {
     }, 
     {
         BUTTON_ID_PLAY,
+        24 /*GPIO*/,
+        HIGH_LEVEL,
+    },
+    {
+        BUTTON_ID_USER,
         19 /*GPIO*/,
         LOW_LEVEL,
     },
