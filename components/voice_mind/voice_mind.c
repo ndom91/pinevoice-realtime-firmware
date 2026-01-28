@@ -37,7 +37,7 @@ static void _mic_input_event(void *priv, int evt, void *data, int size)
 	mic_kws_t      result    = { MIC_WAKEUP_TYPE_NONE, 0, 0, 0, "tian mao jing ling"};
 
 	if (evt == KWS_WEAKUP_EVENT) {
-		g_voice_priv.state = VOICE_STATE_BUSY;
+		// TODO: gamiee, g_voice_priv.state = VOICE_STATE_BUSY;
 		g_voice_priv.event_cb(g_voice_priv.mic, MIC_EVENT_SESSION_START, (void *)&result, sizeof(mic_kws_t));
 #if DEBUG_DUMP_PCM_DATA
 		g_asr_pcm_len = 0;

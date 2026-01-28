@@ -347,15 +347,13 @@ inline TfLiteStatus Quantize(TfLiteContext* context, float scale,
   // printf("%.6f / %.6f = %.6f\n", f, scale, tmp);
   // printf("%d %.6f, %d %.6f\n", std::numeric_limits<int32_t>::min(), static_cast<float>(std::numeric_limits<int32_t>::min()), std::numeric_limits<int32_t>::max(), static_cast<float>(std::numeric_limits<int32_t>::max()));
   // printf("%d %.6f, %d %.6f\n", std::numeric_limits<int32_t>::min(), static_cast<float>(std::numeric_limits<int32_t>::min()), std::numeric_limits<int32_t>::max(), static_cast<float>(std::numeric_limits<int32_t>::max()));
-  printf("%d %.6f, %d %.6f\n", std::numeric_limits<int32_t>::min(), static_cast<float>(std::numeric_limits<int32_t>::min()), std::numeric_limits<int32_t>::max(), static_cast<float>(std::numeric_limits<int32_t>::max()));
-  printf("u: %d %.6f\n", 9445444, static_cast<float>(9445444));
-  // const bool no_integer_overflow_from_quantization =
-  //     (tmp >= static_cast<float>(std::numeric_limits<int32_t>::min()) &&
-  //      tmp <= static_cast<float>(std::numeric_limits<int32_t>::max()));
-  
+  // printf("%d %.6f, %d %.6f\n", std::numeric_limits<int32_t>::min(), static_cast<float>(std::numeric_limits<int32_t>::min()), std::numeric_limits<int32_t>::max(), static_cast<float>(std::numeric_limits<int32_t>::max()));
+  // printf("u: %d %.6f\n", 9445444, static_cast<float>(9445444));
+  // printf("%16X %16X, %16X %16X\n", std::numeric_limits<int32_t>::min(), static_cast<double>(std::numeric_limits<int32_t>::min()), std::numeric_limits<int32_t>::max(), static_cast<double>(std::numeric_limits<int32_t>::max()));
   const bool no_integer_overflow_from_quantization =
-      (tmp >= static_cast<float>(INT32_MIN) &&
-       tmp <= static_cast<float>(INT32_MAX));
+      (tmp >= static_cast<float>(std::numeric_limits<int32_t>::min()) &&
+       tmp <= static_cast<float>(std::numeric_limits<int32_t>::max()));
+  
   TF_LITE_ENSURE(context, no_integer_overflow_from_quantization);
   q = zero_point + static_cast<int32_t>(tmp);
   return kTfLiteOk;
