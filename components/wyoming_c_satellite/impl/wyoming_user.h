@@ -32,4 +32,6 @@
 #define PLAT_MUTEX_LOCK(mutex) aos_mutex_lock(mutex, AOS_WAIT_FOREVER)
 #define PLAT_MUTEX_UNLOCK(mutex) aos_mutex_unlock(mutex)
 
+#define EVENT_DECODER_BUFFER_SIZE (4096)
+
 #endif
