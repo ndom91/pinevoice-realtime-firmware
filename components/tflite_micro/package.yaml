@@ -19,7 +19,8 @@ build_config:
     - ./third_party/ruy
     - ./third_party/kissfft
  # ldflag: -march=rv64imafdc_zfh -fno-tree-vectorize 
-  cxxflag: -fno-rtti # -march=rv64imafdc_zfh -fno-tree-vectorize # -O3 
+  cxxflag: -fno-rtti -O3  # -march=rv64imafdc_zfh -fno-tree-vectorize # -O3 
+  cflag: -O3
   # cflag:  -march=rv64imafdc_zfh -fno-tree-vectorize # -O3
 
 def_config:

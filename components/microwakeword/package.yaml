@@ -14,8 +14,8 @@ build_config:
   include:
     - src
     - MicroSpeechFeatures/include
-  cxxflag: -fno-rtti # -O3
-  cflag: # -O3
+  cxxflag: -fno-rtti -O3
+  cflag: -O3
 
 source_file:
   - src/*.cpp
