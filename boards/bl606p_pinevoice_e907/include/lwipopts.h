@@ -297,6 +297,7 @@ a lot of data that needs to be copied, this should be set high. */
 /*Enable Status callback and link callback*/
 #define LWIP_NETIF_STATUS_CALLBACK      1
 #define LWIP_NETIF_LINK_CALLBACK        1
+#define LWIP_NETIF_EXT_STATUS_CALLBACK  1
 /*Enable dns*/
 #define LWIP_DNS                        1
 #define LWIP_DNS_SECURE                 0
