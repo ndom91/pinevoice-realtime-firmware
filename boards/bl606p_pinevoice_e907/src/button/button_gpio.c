@@ -93,11 +93,18 @@ static button_gpio_event_conf_t button_event_confs[] = {
         0 /*ms*/,
     },
     {
-        BUTTON_ID_PLAY,
+        BUTTON_ID_USER,
         BUTTON_ID_NULL,
         KEY_MSG_FACTORY,
         BUTTON_PRESS_LONG_DOWN /*长按键*/,
         6000 /*ms*/,
+    },
+    {
+        BUTTON_ID_USER,
+        BUTTON_ID_NULL,
+        KEY_MSG_USER,
+        BUTTON_PRESS_UP /*长按键*/,
+        0 /*ms*/,
     },
     #if 0
     {
