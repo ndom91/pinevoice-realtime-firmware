@@ -43,3 +43,9 @@ This repository contains source code for Pine64's PineVoice. It is based on Bouf
 `./go` script compiles whole SDK, together with DSP project. For faster development, you can use `build.sh` script, which compiles only current project and skips checking changes in other components.
 
 Additionally, `./flash.sh cli` will open PineVoice's UART console in `tio` after successful flashing of the firmware.
+
+# License
+
+AliOS/Xuantie-RTOS/Yocop is using Apache 2.0 license. Provided code credits goes to their respective owners: Alibaba/AliOS, Bouffalo Lab.
+
+Code made by community for PineVoice is licensed with Apache 2.0 or MIT.
