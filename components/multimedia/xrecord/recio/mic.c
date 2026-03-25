@@ -142,8 +142,16 @@ err:
 
 static int __mic_pcm_close(recio_t *io)
 {
-    if (io->private) {
-        msp_free(io->private);
+    mic_dev_t *priv = (mic_dev_t *)io->private;
+
+    if (priv) {
+        if (priv->pcmC) {
+            msp_pcm_close(priv->pcmC);
+            priv->pcmC = NULL;
+        }
+
+        msp_free(priv);
+        io->private = NULL;
     }
     return 0;
 }
