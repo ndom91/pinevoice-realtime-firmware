@@ -6,7 +6,7 @@ ARG GID=1000
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    sudo build-essential git clang curl ca-certificates tio
+    sudo build-essential git clang curl ca-certificates tio zip
 
 RUN mkdir -p /opt/toolchain \
   && curl -fsSL http://files.pine64.org/tools/bouffalo/bl606p_toolchain.tar.gz \
