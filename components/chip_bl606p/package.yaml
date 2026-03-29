@@ -71,6 +71,7 @@ build_config:
     - blcrypto_suite/inc
 
     - usb_stack/class/audio
+    - usb_stack/class/cdc
     - usb_stack/core
     - usb_stack/common
     - usb_stack
@@ -239,6 +240,7 @@ source_file:
   - blcrypto_suite/src/blcrypto_suite_export_fw.c ? <CONFIG_CPU_E907>
 
   - usb_stack/class/audio/usbd_audio.c ? <CONFIG_CPU_E907>
+  - usb_stack/class/cdc/usbd_cdc.c ? <CONFIG_CPU_E907>
   - usb_stack/core/usbd_core.c ? <CONFIG_CPU_E907>
   
   # xz_crc32.c xz_dec_lzma2.c xz_dec_stream.c xz_decompress.c xz_port.c
