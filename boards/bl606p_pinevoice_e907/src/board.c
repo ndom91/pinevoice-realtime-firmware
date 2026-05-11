@@ -9,7 +9,7 @@
 #include <sys_clk.h>
 #include "bl606p_glb.h"
 #include <bl606p_gpio.h>
-
+#include <sys/app_sys.h>
 #include <aos/kernel.h>
 
 #define C906_UART 0
@@ -138,7 +138,9 @@ void mutekey_task_entry(void *arg)
             press_tmp++;
             if (press_tmp >= 10) {
                 mute_state = value;
-                aos_kv_setint("MUTE_STATE", mute_state);
+                if (app_sys_get_boot_reason() != BOOT_REASON_FACTORY_MODE) {
+                    aos_kv_setint("MUTE_STATE", mute_state);
+                } 
                 printf("msp kv mute state:%d\r\n", mute_state);
             }
         } else {
