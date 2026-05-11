@@ -12,12 +12,12 @@
         #size-cells = <1>;
         brd_rf {
             xtal_mode = "MF";
-            xtal = <36 36 0 60 60>;
+            xtal = <32 32 0 60 60>;
             pwr_mode = "bf";//B: only use power offset in EFUSE; b: use power offset in EFUSE with incremental mode; F: only use power offset in Flash; f: use power offset in Flash with incremental mode
             pwr_table_11b = <17 17 17 17>;//1Mbps 2Mbps 5.5Mbps 11Mbps
             pwr_table_11g = <15 15 15 15 15 15 15 15>; //6Mbps 9Mbps 12Mbps 18MBps 24Mbps 36Mbps 48Mbps 54Mbps
             pwr_table_11n = <14 14 14 14 14 14 14 14>; //MCS0 MCS1 MCS2 MCS3 MCS4 MCS5 MCS6 MCS7
-            pwr_offset = <16 16 16 16 16 16 16 16 16 16 16 16 16 16>;//due to the limit of current DTC, negative value is used. So we work around by adding all the poweroffset with 10. so 8 represents -2; 10 represents 0; 13 represents 3
+            pwr_offset = <19 19 19 19 19 19 19 19 19 19 19 19 19 19>;//due to the limit of current DTC, negative value is used. So we work around by adding all the poweroffset with 10. so 8 represents -2; 10 represents 0; 13 represents 3
         };
         rf_temp {                                                                                                    
             en_tcal = <0>;                                                                                           
