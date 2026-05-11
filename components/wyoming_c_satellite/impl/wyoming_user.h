@@ -16,7 +16,11 @@
 #undef LOGE
 #undef LOGD
 #undef LOGI
+#ifdef CONFIG_DEBUG
 #define LOGD(...) ulog(LOG_DEBUG, "wyoming", ULOG_TAG, __VA_ARGS__)
+#else
+#define LOGD(...)  
+#endif
 #define LOGE(...) ulog(LOG_ERR, "wyoming", ULOG_TAG, __VA_ARGS__)
 #define LOGI(...) ulog(LOG_INFO, "wyoming", ULOG_TAG, __VA_ARGS__)
 
