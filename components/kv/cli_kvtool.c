@@ -21,7 +21,7 @@ static void cmd_kvfs_func(char *wbuf, int wbuf_len, int argc, char **argv)
     char getvalue[128];
     int intvalue;
 
-#if defined(CONFIG_DEBUG)
+#if defined(CONFIG_DEBUG) || 1
     if (argc == 2) {
         if (strcmp(argv[1], "dump") == 0) {
             extern void __kv_dump();
