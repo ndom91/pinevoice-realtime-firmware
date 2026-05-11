@@ -30,17 +30,17 @@ static void _msg_process(ipc_t *ipc, message_t *msg, void *priv)
     case IFS_CMD_OPEN: {
     	struct ifs_open_arg *req = (struct ifs_open_arg *)msg->req_data;
     	int fd = aos_open(req->path, req->flags);
-    	*(uint64_t *)msg->resp_data = (uint64_t)fd;
-    	msg->resp_len = sizeof(uint64_t);
+    	*(int32_t *)msg->resp_data = (int32_t)fd;
+    	msg->resp_len = sizeof(int32_t);
     	printf("xxxxxxxxxxxxx %s %d\r\n", req->path, fd);
     	break;
     }
     case IFS_CMD_READ: {
     	int fd = (int)*(uint64_t *)msg->req_data;
-    	uint32_t ret = aos_read(fd, (void *)(msg->resp_data + sizeof(ret)), msg->resp_len - sizeof(ret));
-    	*(uint32_t *)msg->resp_data = ret;
-    	//msg->resp_len = sizeof(uint32_t) + ret;
-    	//printf("xxxxxxxxxxxxx read size:%d\r\n", ret);
+    	int32_t ret = aos_read(fd, (void *)(msg->resp_data + sizeof(int32_t)), msg->resp_len - sizeof(int32_t));
+    	*(int32_t *)msg->resp_data = ret;
+    	// printf("xxxxxxxxxxxxx read size:%d, %d\r\n", ret, msg->resp_len - sizeof(int32_t));
+    	// msg->resp_len = sizeof(int32_t) + ret;
     	break;
     }
     case IFS_CMD_WRITE: {
@@ -51,7 +51,7 @@ static void _msg_process(ipc_t *ipc, message_t *msg, void *priv)
     	int ret = aos_write(req->fd, (const void *)req->buffer, req->len);
     	*(uint32_t *)msg->resp_data = ret;
     	msg->resp_len = sizeof(uint32_t);
-    	printf("xxxxxxxxxxxxx write fd:%d len:%d\r\n", req->fd, ret);
+    	// printf("xxxxxxxxxxxxx write fd:%d len:%d\r\n", req->fd, ret);
     	break;
     }
     case IFS_CMD_CLOSE: {
@@ -64,9 +64,9 @@ static void _msg_process(ipc_t *ipc, message_t *msg, void *priv)
     }
     case IFS_CMD_LSEEK: {
     	struct ifs_seek_arg *req = (struct ifs_seek_arg *)msg->req_data;
-    	off_t ret = aos_lseek(req->fd, req->off, req->whence);
-    	*(off_t *)msg->resp_data = ret;
-    	msg->resp_len = sizeof(off_t);
+    	uint32_t ret = aos_lseek(req->fd, req->off, req->whence);
+    	*(uint32_t *)msg->resp_data = ret;
+    	msg->resp_len = sizeof(uint32_t);
     	printf("xxxxxxxxxxxxx lseek fd:%d\r\n", req->fd);
     	break;
     }

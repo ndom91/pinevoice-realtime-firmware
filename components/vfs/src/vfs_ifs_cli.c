@@ -96,15 +96,18 @@ static int ifs_ipc_send(int cmd, void *req_data, int req_size,
 static int32_t ifs_vfs_open(vfs_file_t *fp, const char *path, int flags)
 {
     struct ifs_open_arg req;
-    int64_t fd = 0;
+    int32_t fd = 0;
 
     strncpy((char *)req.path, path, sizeof(req.path));
     req.flags = flags;
 
     ifs_ipc_send(IFS_CMD_OPEN, &req, sizeof(req), &fd, sizeof(fd));
+    printf("%s %s fd:%d\r\n", __func__, path, (int)fd);
+    if (fd < 0) {
+        return fd;
+    }
 	fp->f_arg = (void *)(int32_t)fd;
 
-	printf("%s %s fd:%d\r\n", __func__, path, (int)fd);
 
     return 0;
 }
@@ -116,7 +119,7 @@ static int32_t ifs_vfs_close(vfs_file_t *fp)
 
     ifs_ipc_send(IFS_CMD_CLOSE, &fd, sizeof(fd), &res, sizeof(res));
 
-	printf("%s fd:%d res:%d\r\n", __func__, (int)fd, res);
+    printf("%s fd:%d res:%d\r\n", __func__, (int)fd, res);
 
     return res;
 }
@@ -125,19 +128,18 @@ static int32_t ifs_vfs_read(vfs_file_t *fp, char *buf, uint32_t len)
 {
     int64_t fd;
     char *resp_buf;
-    uint32_t resp_size;
+    int32_t resp_size;
 
     fd = (int64_t)fp->f_arg;
 
     resp_buf = aos_zalloc(len + sizeof(resp_size));
-
     ifs_ipc_send(IFS_CMD_READ, &fd, sizeof(fd), resp_buf, len + sizeof(resp_size));
-    resp_size = *(uint32_t *)resp_buf;
+    resp_size = *(int32_t *)resp_buf;
+    printf("%s fd:%d size:%d\r\n", __func__, (int)fd, resp_size);
     memcpy(buf, resp_buf + sizeof(resp_size), resp_size);
 
     aos_free(resp_buf);
 
-    printf("%s fd:%d size:%d\r\n", __func__, (int)fd, resp_size);
 
     return resp_size;
 }
@@ -167,7 +169,7 @@ static int32_t ifs_vfs_write(vfs_file_t *fp, const char *buf, uint32_t len)
 
 static uint32_t ifs_vfs_lseek(vfs_file_t *fp, int64_t off, int32_t whence)
 {
-    off_t res = -1;
+    uint32_t res = -1;
     struct ifs_seek_arg req_data;
 
     req_data.off = off;
