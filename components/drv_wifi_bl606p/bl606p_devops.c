@@ -1047,7 +1047,7 @@ static int _wifi_start_firmware_task(void)
 {
     bl_pm_init();
     krhino_task_create(&wifi_fw_task,
-                       "fw",
+                       "fw-wifi",
                        NULL,
                        TASK_PRIORITY_FW,
                        0,
