@@ -5,7 +5,7 @@ type: common
 tag: wakeword
 keywords:
   - wakeword
-license: APACHE # TODO
+license: GPLv3
 
 depends:
   - tflite_micro: develop
