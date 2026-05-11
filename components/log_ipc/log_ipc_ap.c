@@ -3,6 +3,7 @@
  */
 #if !defined(CONFIG_USE_LOG_IPC) || (CONFIG_USE_LOG_IPC == 0)
 
+#include <stdio.h>
 #include <stdint.h>
 #include <aos/aos.h>
 #include <aos/ringbuffer.h>
@@ -61,7 +62,7 @@ static void console_ipc_process(ipc_t *ipc, message_t *m, void *priv)
 
     switch (m->command) {
         case IPC_CMD_DEBUG_CONSOLE_INFO:
-            ulog(LOG_DEBUG, TAG, ULOG_TAG, "CPU(%d):%s", log_ipc->cpu_id, (char *)ipc_data->data);
+            printf("CPU(%d):%s", log_ipc->cpu_id, (char *)ipc_data->data);
         break;
 
         case IPC_CMD_DEBUG_EXCEPT_INFO:
