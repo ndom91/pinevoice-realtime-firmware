@@ -12,7 +12,8 @@ MEMORY
 {
     FLASH (rxai!w)  : ORIGIN = 0x58000000, LENGTH = 8M
     
-    OCRAM(rw)      : ORIGIN = 0x62020000, LENGTH = 64K
+    OCRAM(rw)      : ORIGIN = 0x62020000, LENGTH = 64K-8K
+    OCRAM_NC(!rw)  : ORIGIN = 0x2202E000, LENGTH = 8K
     WRAM(rw)       : ORIGIN = 0x22030000, LENGTH = 96K-512
     
     VRAM(rw)       : ORIGIN = 0x7F000000, LENGTH = 32K
@@ -321,5 +322,15 @@ SECTIONS
   . += __min_heap_size;
   . = ALIGN(0x8) ;
  } > REGION_BSS
+
+ .nocache_ram_region (NOLOAD) : {
+      . = ALIGN(4);
+      __nocache_ram_data_start__ = .;
+
+      *(.nocache_ram)
+
+      . = ALIGN(4);
+      __nocache_ram_data_end__ = .;
+  } > OCRAM_NC
 
 }

@@ -20,6 +20,17 @@ static void board_clock_config(void)
     GLB_Set_UART_CLK(1, HBN_UART_CLK_XCLK, 0);
 }
 
+void board_usb_clock_init(void)
+{
+    uint32_t tmpVal;
+
+    tmpVal = BL_RD_REG(GLB_BASE, GLB_CGEN_CFG1);
+    tmpVal |= (1 << 13);
+    BL_WR_REG(GLB_BASE, GLB_CGEN_CFG1, tmpVal);
+    GLB_Set_USB_CLK_From_WIFIPLL(1);
+    printf("USB CLOCK init\n");
+}
+
 void board_gpio_init(void)
 {
 #if 1
@@ -99,6 +110,7 @@ void board_init(void)
     board_gpio_init();
     board_dma_init();
     board_wdt_init();
+    board_usb_clock_init();
 }
 
 #define MUTE_STATUS_OD_VALID      (1)   // MUTE_STATUS_OD H <--- MUTE LED OFF

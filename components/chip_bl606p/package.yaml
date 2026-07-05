@@ -70,11 +70,16 @@ build_config:
 
     - blcrypto_suite/inc
 
-    - usb_stack/class/audio
-    - usb_stack/class/cdc
-    - usb_stack/core
-    - usb_stack/common
-    - usb_stack
+    # - usb_stack/class/audio
+    # - usb_stack/class/cdc
+    # - usb_stack/core
+    # - usb_stack/common
+    # - usb_stack
+    - cherryusb
+    - cherryusb/core
+    - cherryusb/common
+    - cherryusb/class/cdc
+    - cherryusb/class/hub
 
     - peripherals/include
     - peripherals/bl606p_code/bl_code
@@ -154,7 +159,7 @@ source_file:
 #  - drivers/blyoc_mbox/blyoc_test_mbox.c ? <CONFIG_COMP_IPC>
   - drivers/blyoc_mbox/ipc_client_cp.c ? <CONFIG_COMP_IPC>
   - drivers/blyoc_mbox/ipc_mem.c ? <CONFIG_COMP_IPC>
-  - drivers/bl_usb/bl_usb.c ? <CONFIG_CPU_E907>
+#  - drivers/bl_usb/bl_usb.c ? <CONFIG_CPU_E907>
 
   #- drivers/blyoc_audio/audio_middleware.c
   #- drivers/blyoc_audio/audio_middleware_main.c
@@ -239,10 +244,16 @@ source_file:
   - blcrypto_suite/src/blcrypto_suite_supplicant_api.c ? <CONFIG_CPU_E907>
   - blcrypto_suite/src/blcrypto_suite_export_fw.c ? <CONFIG_CPU_E907>
 
-  - usb_stack/class/audio/usbd_audio.c ? <CONFIG_CPU_E907>
-  - usb_stack/class/cdc/usbd_cdc.c ? <CONFIG_CPU_E907>
-  - usb_stack/core/usbd_core.c ? <CONFIG_CPU_E907>
+  # - usb_stack/class/audio/usbd_audio.c ? <CONFIG_CPU_E907>
+  # - usb_stack/class/cdc/usbd_cdc.c ? <CONFIG_CPU_E907>
+  # - usb_stack/core/usbd_core.c ? <CONFIG_CPU_E907>
   
+  - cherryusb/core/usbd_core.c ? <CONFIG_CPU_E907>
+  - cherryusb/port/ehci/usb_hc_ehci.c ? <CONFIG_CPU_E907>
+  - cherryusb/port/bouffalolab/bflb_usb_v2.c ? <CONFIG_CPU_E907>
+  - cherryusb/port/bouffalolab/bflb_sdk_glue.c ? <CONFIG_CPU_E907>
+  - cherryusb/class/cdc/usbd_cdc_acm.c ? <CONFIG_CPU_E907>
+
   # xz_crc32.c xz_dec_lzma2.c xz_dec_stream.c xz_decompress.c xz_port.c
   - xz/xz_crc32.c ? <CONFIG_CPU_E907>
   - xz/xz_dec_lzma2.c ? <CONFIG_CPU_E907>
@@ -267,7 +278,6 @@ def_config:
   CONFIG_TICK_USE_CORETIME: y
   BLCRYPTO_MBEDTLS_BIGNUM_MULTIPLEX: 1
   #CONFIG_USB_HS: 1
-  CONFIG_USB_DCACHE_ENABLE: 1
   CONFIG_SHM_ALIGN_CACHE: 64
   CFG_CHIP_BL606P: 1
 
