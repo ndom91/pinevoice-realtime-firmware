@@ -29,6 +29,8 @@ extern int aos_vfs_fcntl(int fd, int cmd, int val);
 #define FD_VFS_START VFS_FD_OFFSET
 #define FD_VFS_END   (FD_VFS_START + VFS_MAX_FILE_NUM - 1)
 
+extern int usb_console_raw_write(const void *buf, size_t len) __attribute__((weak));
+
 #ifdef POSIX_DEVICE_IO_NEED
 #ifdef CONFIG_AOS_LWIP
 #include "lwipopts.h"
@@ -213,6 +215,9 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
     } else if ((fd == STDOUT_FILENO) || (fd == STDERR_FILENO)) {
         extern int uart_write(const void *buf, size_t size);
         uart_write(buf, nbytes);
+        if (usb_console_raw_write != NULL) {
+            usb_console_raw_write(buf, nbytes);
+        }
         return nbytes;
     } else {
         return -1;

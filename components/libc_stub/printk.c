@@ -5,9 +5,12 @@
 #include <reent.h>
 #include <errno.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/unistd.h>
 
 bool g_sys_log_disable = 0;
+
+extern int usb_console_raw_write(const void *buf, size_t len) __attribute__((weak));
 
 void kernel_log_enable(bool enable)
 {
@@ -31,18 +34,29 @@ int printk(const char *fmt, ...)
 
 int putsk(const char *str)
 {
-	int i;
+    extern int uart_putc(int ch);
+    size_t len;
+    size_t i;
 
-    if (g_sys_log_disable) {
+    if (g_sys_log_disable || str == NULL) {
     	return 0;
     }
-    for (i = 0; i < strlen(str); i++) {
-    	extern int uart_putc(int ch);
+
+    len = strlen(str);
+    for (i = 0; i < len; i++) {
     	uart_putc(str[i]);
     }
-    if (str[i-1] != '\r' && str[i-1] != '\n') {
-    	uart_putc('\n');
+
+    if (usb_console_raw_write != NULL) {
+        usb_console_raw_write(str, len);
     }
 
-    return i;
+    if (len == 0 || (str[len - 1] != '\r' && str[len - 1] != '\n')) {
+    	uart_putc('\n');
+        if (usb_console_raw_write != NULL) {
+            usb_console_raw_write("\n", 1);
+        }
+    }
+
+    return (int)len;
 }
