@@ -6,43 +6,35 @@ This repository contains source code for Pine64's PineVoice. It is based on Bouf
 
 ## Requirements
 
-- Visual Studio Code
+- Visual Studio Code (for development/editing)
   - Dev Container extension
-- Docker
+- Docker (for building)
 
 ## Downloading
 
 - Clone this repo: `git clone --recursive https://github.com/pine64/pinevoice_smartspeaker_sdk`
-- Download [Bouffalo Dev Cube](http://files.pine64.org/tools/bouffalo/bflb_devcube_v180.tar.gz) and place it to `tools/flashtool` folder.
+- Download [Bouffalo Dev Cube](http://files.pine64.org/tools/bouffalo/bflb_flashtool_bl606p_v190.tar.gz) and place it to `tools/flashtool` folder.
+
+## Prepare environment
+
+Start development environment with:
+- VS Code Dev Container: Open `pinevoice-sdk.code-workspace`. Do not forget to configure `/dev/tty*` used by PineVoice in `.devcontainer/devcontainer.json`.
+- Docker: Build and run `.devcontainer/Dockerfile`, while exposing `/dev/tty*` used by PineVoice, to access it from Docker.
 
 ## Building
 
-1. Open `pinevoice-sdk.code-workspace` within the Dev Container.
-2. Open terminal in **MCU Project**
-3. Execute `./go`
+- Release: run `package.sh`, result will be in `firmware_<commit>.zip`
+- Debug:
+  - Firstly, we need to compile C906 firmware. Go to `solutions/pinevoice_fw_c906` and run `./go`
+  - Afterwards, we can compile main E907 firmware. `solutions/pinevoice_fw_e907` and run `./go` for long full compilation process, or `./build.sh` for shorter local build during development.
 
 ## Flashing
 
-- With Desktop app (from host)
-  - Open **BLDevCube** in `tools/flashtool` folder.
-  - Select BL606P in chip selection dialog.
-  - Set the parameters as follows:
-    - TODO:
-  - Select appropriate COM port.
-  - Press Flash
-  - If flashing fails, hold center button, reset the board and try again.
-- With CLI tool (from container)
-  - Assure that you have enabled `--device=/dev/ttyXXXX` in `.devcontainer/devcontainer.json` with proper path to connected device's tty.
-  - Open **MCU Project** terminal within VS Code.
-    - If you want to flash only firmware, execute only `./flash.sh`.
-    - If you want to flash all partitions (audio, device tree etc.), use `./flash.sh all`.
-  - If flashing fails, hold center button, reset the board and try again.
+Turn off PineVoice, hold center ring button, and then turn on. Afterwards, run `./flash.sh`. Be fast, as there is timeout.
 
-## Development
+In `solutions/pinevoice_fw_e907` is `flash.sh` script. Usage: `./flash.sh <cli/-> <full/->`.
 
-`./go` script compiles whole SDK, together with DSP project. For faster development, you can use `build.sh` script, which compiles only current project and skips checking changes in other components.
-
-Additionally, `./flash.sh cli` will open PineVoice's UART console in `tio` after successful flashing of the firmware.
+Add `cli` as first argument to launch command line after flash, add `full` as second argument to flash media data, mfg and so on. Additionally, if you want to update boot2, uncomment boot2 line (boot2 flashing works only through native UART, not USB VCP).
 
 # License
 
