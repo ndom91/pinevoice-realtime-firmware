@@ -1,11 +1,12 @@
+.DS_Store
 cscope.*
 .vscode
 .project
 gdb.log
 */*/gdb.log
-tools/flashtool/chips/bl606p/device_tree/ro_params.dtb 
+tools/flashtool/chips/bl606p/device_tree/ro_params.dtb
 tools/flashtool/yoc_rfpa.bin
-606p_e907_flash.init 
+606p_e907_flash.init
 solutions/smart_speaker_v2/app/board/bl606p/firmware/c906fdv_fw.h
 
 doc/*
@@ -24,3 +25,11 @@ boards/bl606p_evb_c906c/*
 boards/bl606p_evb_e907c/*
 boards/bl606p_trv03_e907c/*
 firmware_*.zip
+
+compile_commands.json
+
+# Captured serial console / flash tool output
+console_output.txt
+*.log
+
+.claude/settings.local.json

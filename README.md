@@ -1,43 +1,80 @@
-# PineVoice SmartSpeaker SDK
+# PineVoice Realtime firmware
 
-This repository contains source code for Pine64's PineVoice. It is based on Bouffalo Lab's downstream fork of AliOS/YoC/YoCop.
+Native firmware for the Pine64 PineVoice that connects to the Voice PE Realtime
+Home Assistant add-on. It is based on Pine64's BL606P SDK, not ESPHome.
 
-# Development & Building
+The E907 application retains the PineVoice board support, Wi-Fi provisioning,
+buttons, physical mute, LEDs, audio driver, and flash layout. Its Wyoming
+satellite has been replaced with a persistent WebSocket client compatible with
+the Voice PE Realtime protocol:
 
-## Requirements
+- 16 kHz mono PCM microphone audio is sent as binary WebSocket frames after
+  `wake`.
+- Reply audio is received as 24 kHz mono PCM and played through PineVoice's
+  raw-audio FIFO.
+- `start`, `wake`, and `interrupt` JSON control messages and the backend phase
+  messages use the same protocol as `voicepe-realtime-firmware`.
+- The C906 wake-word core loads the copied `Hey Leonard` model from the
+  filesystem image.
 
-- Visual Studio Code (for development/editing)
-  - Dev Container extension
-- Docker (for building)
+## Configure
 
-## Downloading
+Set the hostname, port, and path for the Voice PE Realtime add-on in
+`solutions/pinevoice_fw_e907/app/src/realtime/realtime_config.h`. The defaults
+connect to `ws://homeassistant.local:8080/`, matching the Voice PE firmware.
 
-- Clone this repo: `git clone --recursive https://github.com/pine64/pinevoice_smartspeaker_sdk`
-- Download [Bouffalo Dev Cube](http://files.pine64.org/tools/bouffalo/bflb_flashtool_bl606p_v190.tar.gz) and place it to `tools/flashtool` folder.
+## Build
 
-## Prepare environment
+Docker is required. Build both BL606P images and assemble a release archive:
 
-Start development environment with:
-- VS Code Dev Container: Open `pinevoice-sdk.code-workspace`. Do not forget to configure `/dev/tty*` used by PineVoice in `.devcontainer/devcontainer.json`.
-- Docker: Build and run `.devcontainer/Dockerfile`, while exposing `/dev/tty*` used by PineVoice, to access it from Docker.
+```bash
+./build.sh
+```
 
-## Building
+The resulting files are:
 
-- Release: run `package.sh`, result will be in `firmware_<commit>.zip`
-- Debug:
-  - Firstly, we need to compile C906 firmware. Go to `solutions/pinevoice_fw_c906` and run `./go`
-  - Afterwards, we can compile main E907 firmware. `solutions/pinevoice_fw_e907` and run `./go` for long full compilation process, or `./build.sh` for shorter local build during development.
+- `solutions/pinevoice_fw_e907/yoc_rfpa.bin`: E907 application image
+- `solutions/pinevoice_fw_e907/generated/littlefs.bin`: filesystem image,
+  including the wake-word model
+- `firmware_<commit>.zip`: release bundle
 
-## Flashing
+## Flash
 
-Turn off PineVoice, hold center ring button, and then turn on. Afterwards, run `./flash.sh`. Be fast, as there is timeout.
+`./build.sh` downloads Pine64's Bouffalo flash tool into `tools/flashtool`.
+Turn off PineVoice, hold its centre ring button, turn it on, then run:
 
-In `solutions/pinevoice_fw_e907` is `flash.sh` script. Usage: `./flash.sh <cli/-> <full/->`.
+```bash
+./flash.sh --port /dev/ttyUSB0 --full
+```
 
-Add `cli` as first argument to launch command line after flash, add `full` as second argument to flash media data, mfg and so on. Additionally, if you want to update boot2, uncomment boot2 line (boot2 flashing works only through native UART, not USB VCP).
+Use the device path exposed by your host, such as `/dev/cu.usbmodem...` on
+macOS. Prefer the `cu.*` callout device over its `tty.*` counterpart for
+flashing. `--full` writes the application, filesystem, and manufacturing image;
+omit it for an application-only update.
 
-# License
+If the bootloader USB device disappears before the flash tool starts, launch
+this command before powering PineVoice on, then hold the centre button and
+connect it:
 
-AliOS/Xuantie-RTOS/Yocop is using Apache 2.0 license. Provided code credits goes to their respective owners: Alibaba/AliOS, Bouffalo Lab.
+```bash
+./flash.sh --port /dev/cu.usbmodem20221234561 --full --wait-for-port
+```
 
-Code made by community for PineVoice is licensed with Apache 2.0 or MIT.
+If a normally booted PineVoice exposes its `PineVoice Console` USB endpoint,
+Boot2 ISP can request the resident firmware to enter the flash loader:
+
+```bash
+./flash.sh --port /dev/cu.usbmodem20221234561 --full --wait-for-port --boot2-isp
+```
+
+`--boot2-isp` does not repair a `CherryUSB_CDC_DEMO` centre-button recovery
+endpoint that does not acknowledge the loader handshake.
+
+Set `PINEVOICE_FLASH_TOOL` only when using a custom Bouffalo flash-tool binary.
+
+## Status
+
+This is a native port of the realtime audio transport. It does not expose
+ESPHome entities or support ESPHome OTA, because PineVoice is a BL606P device.
+USB serial flashing is the supported installation path until native OTA is
+implemented and tested on the hardware.
