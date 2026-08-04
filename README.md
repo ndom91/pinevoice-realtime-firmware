@@ -19,9 +19,18 @@ the Voice PE Realtime protocol:
 
 ## Configure
 
-Set the hostname, port, and path for the Voice PE Realtime add-on in
-`solutions/pinevoice_fw_e907/app/src/realtime/realtime_config.h`. The defaults
-connect to `ws://homeassistant.local:8080/`, matching the Voice PE firmware.
+Set the hostname, port, and device id for the Voice PE Realtime add-on in
+`solutions/pinevoice_fw_e907/app/src/realtime/realtime_config.h`.
+
+`VA_DEVICE_ID` identifies this unit to the backend, which uses it to key the
+device's conversation, address its phase messages, and target announcements
+and timer rings. Give every PineVoice and Voice PE in the house a distinct
+value — without one the backend falls back to the client IP, which changes on
+DHCP renewal and cannot tell two devices apart behind a single NAT.
+
+Serving more than one device at a time needs a backend with per-device
+sessions; the stock add-on closes the previous device's connection whenever a
+new one arrives.
 
 ## Build
 
