@@ -27,8 +27,9 @@ by Tristan Brotherton.
 
 ## Configure
 
-Set the hostname and port for the Voice PE Realtime add-on in
-`solutions/pinevoice_fw_e907/app/src/realtime/realtime_config.h`.
+By default, the firmware connects to `homeassistant.local:8080`. Override the
+hostname or port for one build with `--host` and `--port`; this does not modify
+the checked-in configuration.
 
 ## Build
 
@@ -36,6 +37,13 @@ Docker is required. Build both BL606P images and assemble a release archive:
 
 ```bash
 ./build.sh
+```
+
+`./build.sh` creates a release build by default. Use `--debug` to retain debug
+logging, or specify a Home Assistant endpoint that your PineVoice can resolve:
+
+```bash
+./build.sh --debug --host home-assistant.example.com --port 8080
 ```
 
 The resulting files are:

@@ -9,7 +9,7 @@ RUN sed -i 's|http://|https://|g' /etc/apt/sources.list \
   && apt-get -o Acquire::https::Verify-Peer=false install -y --no-install-recommends ca-certificates \
   && apt-get update \
   && apt-get install -y --no-install-recommends \
-    sudo build-essential git clang curl tio zip
+    sudo build-essential git clang curl tio util-linux zip
 
 RUN mkdir -p /opt/toolchain \
   && curl -fsSL https://files.pine64.org/tools/bouffalo/bl606p_toolchain.tar.gz \
