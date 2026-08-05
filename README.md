@@ -17,6 +17,14 @@ the Voice PE Realtime protocol:
 - The C906 wake-word core loads the copied `Hey Leonard` model from the
   filesystem image.
 
+## Acknowledgments
+
+This firmware is built on the
+[PineVoice Smart Speaker SDK](https://github.com/pine64/pinevoice_smartspeaker_sdk)
+from Pine64 and the original
+[Voice PE Realtime firmware](https://github.com/TristanBrotherton/voicepe-realtime-firmware)
+by Tristan Brotherton.
+
 ## Configure
 
 Set the hostname, port, and device id for the Voice PE Realtime add-on in
