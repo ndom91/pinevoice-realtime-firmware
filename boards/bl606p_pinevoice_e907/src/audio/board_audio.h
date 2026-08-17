@@ -7,6 +7,12 @@
 /* 音频参数配置 */
 #define AUIDO_IN_GAIN_MIC 27 /*db*/
 #define AUIDO_IN_GAIN_REF 6  /*db*/
+/* The microphones are PDM, so AUIDO_IN_GAIN_MIC above never reaches them:
+   raising it to its 42 db maximum changes the captured level not at all. The
+   codec's digital stage is what applies, and nothing set it, leaving capture
+   ~33 db below a reference Voice PE. Measured on hardware: 40 db puts peaks at
+   -15.3 dBFS against the reference's -13.0, with no clipping. */
+#define AUIDO_IN_GAIN_MIC_DIGITAL 40 /*db*/
 #define AUIDO_OUT_GAIN   -3  /*db*/
 
 #define AUIDO_PA_MUTE_PIN 16 // 03m-12; dvk-41; x32-17
@@ -28,6 +34,8 @@ void board_audio_init(void);
  * @return  0:执行成功，其他值为失败
  */
 int board_audio_in_set_gain(int id, int gain);
+int board_audio_in_set_digital_gain(int id, int gain);
+int board_audio_in_get_digital_gain(int id);
 
 /**
  * 获取采集增益配置

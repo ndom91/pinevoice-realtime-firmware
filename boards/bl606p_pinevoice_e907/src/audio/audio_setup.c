@@ -16,19 +16,50 @@
 
 /* 默认采集增益 */
 static int g_audio_in_gain[]  = { AUIDO_IN_GAIN_MIC, AUIDO_IN_GAIN_MIC, AUIDO_IN_GAIN_REF };
+static int g_audio_in_digital_gain[] = { 0, 0, 0 };
 static int g_audio_out_gain[] = { AUIDO_OUT_GAIN, AUIDO_OUT_GAIN };
 
 /*采集增益配置*/
 extern int mic_analog_gain_set(int ch, float gaindb);
+extern int mic_digital_gain_set(int ch, float gaindb);
 
 int board_audio_in_set_gain(int id, int gain)
 {
+    int ret;
+
     if (id < 0 || id >= sizeof(g_audio_in_gain) / sizeof(int)) {
         return -1;
     }
-    mic_analog_gain_set(id, gain);
+    // mic_analog_gain_set rejects anything that is not 0 or 6..42 in steps of
+    // 3. Caching a rejected value made board_audio_in_get_gain report a gain
+    // the codec had never applied, so callers saw a silent no-op as success.
+    ret = mic_analog_gain_set(id, gain);
+    if (ret != 0) {
+        return ret;
+    }
     g_audio_in_gain[id] = gain;
     return 0;
+}
+
+/* PDM microphones ignore the analog gain above; this is the digital stage. */
+int board_audio_in_set_digital_gain(int id, int gain)
+{
+    if (id < 0 || id >= sizeof(g_audio_in_digital_gain) / sizeof(int)) {
+        return -1;
+    }
+    if (mic_digital_gain_set(id, gain) != 0) {
+        return -1;
+    }
+    g_audio_in_digital_gain[id] = gain;
+    return 0;
+}
+
+int board_audio_in_get_digital_gain(int id)
+{
+    if (id < 0 || id >= sizeof(g_audio_in_digital_gain) / sizeof(int)) {
+        return -1;
+    }
+    return g_audio_in_digital_gain[id];
 }
 
 int board_audio_in_get_gain(int id)
@@ -133,4 +164,11 @@ void board_audio_init(void)
     snd_config.pa_pin = PA_PIN;
 
     snd_card_bl606p_register(&snd_config);
+
+    // The digital gain is deliberately NOT set here. snd_config carries only
+    // the analog gains, which do not apply to PDM microphones, but writing the
+    // digital register at this point does not survive: bringing the ADC up for
+    // capture resets it, and the captured level stays where it was. It is
+    // applied from the capture task instead, once PCM is flowing — see
+    // mic_capture_apply_dgain() in components/voice_mind/voice_mind.c.
 }
