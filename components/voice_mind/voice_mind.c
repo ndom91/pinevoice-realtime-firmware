@@ -20,8 +20,13 @@
 
 #define MIN(x, y) ((x) > (y) ? (y) : (x))
 
-#define FRAME_SIZE ((16000 / 1000) * (16 / 8) * 10) /* 320 */
-#define PCM_RINGBUF_LEN      (FRAME_SIZE * 150)
+#define PCM_RATE 16000
+#define PCM_CHANNELS 3
+#define PCM_FRAME_MS 10
+#define PCM_SAMPLE_BYTES 2
+#define PCM_MONO_FRAME_SIZE ((PCM_RATE / 1000) * PCM_SAMPLE_BYTES * PCM_FRAME_MS)
+#define PCM_INPUT_FRAME_SIZE (PCM_MONO_FRAME_SIZE * PCM_CHANNELS)
+#define PCM_RINGBUF_LEN      (PCM_INPUT_FRAME_SIZE * 150)
 
 static voice_t g_voice_priv;
 extern bool DataInput_Init();
@@ -64,7 +69,8 @@ static void _mic_input_event(void *priv, int evt, void *data, int size)
 
 static void plugin_task_entry(void *arg)
 {
-    char *pcm_data = (char *)aos_malloc_check(FRAME_SIZE);
+    int16_t *pcm_data = (int16_t *)aos_malloc_check(PCM_INPUT_FRAME_SIZE);
+    int16_t *mono_data = (int16_t *)aos_malloc_check(PCM_MONO_FRAME_SIZE);
     int data_size = 0;
 
     printf("DataInput_Init\r\n");
@@ -74,13 +80,23 @@ static void plugin_task_entry(void *arg)
     
     while (g_voice_priv.task_running) {
 
-        if (dispatch_ringbuffer_available_read_size(TYPE_PCM) < FRAME_SIZE) {
+        if (dispatch_ringbuffer_available_read_size(TYPE_PCM) < PCM_INPUT_FRAME_SIZE) {
             aos_msleep(10);
             continue;
 
         }
-        if ((data_size = voice_get_pcm_data(pcm_data, FRAME_SIZE)) > 0) {
-            g_voice_priv.event_cb(g_voice_priv.mic, MIC_EVENT_PCM_DATA, pcm_data, data_size);
+        if ((data_size = voice_get_pcm_data(pcm_data, PCM_INPUT_FRAME_SIZE)) == PCM_INPUT_FRAME_SIZE) {
+            // The capture device delivers interleaved mic1, mic2, reference PCM.
+            // Send the two microphone channels as one mono stream; the reference
+            // channel is speaker playback, not user speech.
+            for (int i = 0; i < PCM_MONO_FRAME_SIZE / PCM_SAMPLE_BYTES; i++) {
+                mono_data[i] = (int16_t)(
+                    ((int32_t)pcm_data[i * PCM_CHANNELS] + pcm_data[i * PCM_CHANNELS + 1]) / 2
+                );
+            }
+            g_voice_priv.event_cb(
+                g_voice_priv.mic, MIC_EVENT_PCM_DATA, mono_data, PCM_MONO_FRAME_SIZE
+            );
         } else {
             aos_msleep(10);
         }
@@ -91,6 +107,7 @@ static void plugin_task_entry(void *arg)
         aos_free(g_voice_priv.kws_data);
     }
     aos_free(pcm_data);
+    aos_free(mono_data);
     aos_task_exit(0);
 }
 
